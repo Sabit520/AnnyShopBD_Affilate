@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnnyShopBD - Best Affiliate Deals</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #6C5CE7; --primary-light: #A29BFE; --accent: #FF6B6B;
+            --bg: #0F0F1A; --bg-card: #1A1A2E; --text: #FFFFFF;
+            --text-muted: #8B8BA3; --text-dim: #5A5A7A; --border: #2A2A45;
+            --success: #00D2A0; --warning: #FFD93D;
+            --gradient-1: linear-gradient(135deg, #6C5CE7, #A29BFE);
+            --gradient-2: linear-gradient(135deg, #FF6B6B, #FFA07A);
+            --shadow: 0 8px 32px rgba(0,0,0,0.3); --radius: 16px; --radius-sm: 10px; --radius-xs: 6px;
+        }
+        body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+        body::before { content: ''; position: fixed; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle at 30% 20%, rgba(108,92,231,0.08) 0%, transparent 50%), radial-gradient(circle at 70% 80%, rgba(255,107,107,0.06) 0%, transparent 50%); z-index: 0; pointer-events: none; }
+        ::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-track { background: var(--bg); } ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
+
+        .loader-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 16px; z-index: 9999; transition: opacity 0.4s ease; }
+        .loader-overlay.hidden { opacity: 0; pointer-events: none; }
+        .loader-spin { width: 48px; height: 48px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loader-text { color: var(--text-muted); font-size: 14px; font-weight: 500; }
+
+        .config-warning { background: rgba(255, 107, 107, 0.15); border: 1px solid var(--accent); color: var(--accent); text-align: center; padding: 10px; font-size: 13px; font-weight: 600; position: relative; z-index: 1001; display: none; }
+        .config-warning.visible { display: block; }
+
+        .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: rgba(15,15,26,0.85); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); padding: 0 24px; }
+        .navbar-inner { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 72px; }
+        .logo { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+        .logo-icon { width: 42px; height: 42px; background: var(--gradient-1); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; color: white; box-shadow: 0 4px 16px rgba(108,92,231,0.4); }
+        .logo-text { font-size: 22px; font-weight: 800; background: var(--gradient-1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .nav-actions { display: flex; align-items: center; gap: 12px; }
+        .nav-btn { padding: 10px 20px; border-radius: var(--radius-sm); border: none; cursor: pointer; font-family: inherit; font-size: 14px; font-weight: 600; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px; }
+        .nav-btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
+        .nav-btn-ghost:hover { color: var(--text); border-color: var(--primary); background: rgba(108,92,231,0.1); }
+        .nav-btn-primary { background: var(--gradient-1); color: white; box-shadow: 0 4px 16px rgba(108,92,231,0.3); }
+        .nav-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(108,92,231,0.5); }
+        .nav-btn-danger { background: rgba(255,107,107,0.15); color: var(--accent); border: 1px solid rgba(255,107,107,0.3); }
+        .nav-btn-danger:hover { background: rgba(255,107,107,0.25); }
+
+        .hero { position: relative; padding: 140px 24px 80px; text-align: center; }
+        .hero-badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 20px; background: rgba(108,92,231,0.15); border: 1px solid rgba(108,92,231,0.3); border-radius: 100px; font-size: 13px; font-weight: 600; color: var(--primary-light); margin-bottom: 24px; animation: fadeInUp 0.6s ease; }
+        .hero-badge .dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; animation: pulse-dot 2s infinite; }
+        @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        .hero h1 { font-size: clamp(36px, 6vw, 64px); font-weight: 900; line-height: 1.1; margin-bottom: 20px; letter-spacing: -2px; animation: fadeInUp 0.6s ease 0.1s both; }
+        .hero h1 span { background: var(--gradient-2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero p { font-size: 18px; color: var(--text-muted); max-width: 560px; margin: 0 auto 32px; line-height: 1.7; animation: fadeInUp 0.6s ease 0.2s both; }
+        .hero-stats { display: flex; justify-content: center; gap: 48px; animation: fadeInUp 0.6s ease 0.3s both; }
+        .hero-stat { text-align: center; } .hero-stat-number { font-size: 28px; font-weight: 800; color: var(--primary-light); }
+        .hero-stat-label { font-size: 13px; color: var(--text-dim); margin-top: 4px; font-weight: 500; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+
+        .controls { max-width: 1400px; margin: 0 auto; padding: 0 24px 40px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; animation: fadeInUp 0.6s ease 0.4s both; }
+        .search-box { flex: 1; min-width: 280px; position: relative; }
+        .search-box input { width: 100%; padding: 14px 20px 14px 50px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text); font-family: inherit; font-size: 15px; outline: none; transition: all 0.3s ease; }
+        .search-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(108,92,231,0.15); }
+        .search-box input::placeholder { color: var(--text-dim); }
+        .search-box .search-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--text-dim); }
+        .filter-btn { padding: 14px 24px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text-muted); font-family: inherit; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease; }
+        .filter-btn:hover, .filter-btn.active { border-color: var(--primary); color: var(--primary-light); background: rgba(108,92,231,0.1); }
+
+        .products-section { max-width: 1400px; margin: 0 auto; padding: 0 24px 80px; position: relative; z-index: 1; }
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
+        .product-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; animation: fadeInUp 0.5s ease both; }
+        .product-card:hover { transform: translateY(-8px); border-color: var(--primary); box-shadow: 0 16px 64px rgba(0,0,0,0.4), 0 0 40px rgba(108,92,231,0.1); }
+        .product-card-image { width: 100%; height: 220px; object-fit: cover; display: block; transition: transform 0.5s ease; }
+        .product-card:hover .product-card-image { transform: scale(1.05); }
+        .product-card-image-wrapper { overflow: hidden; position: relative; }
+        .product-card-badge { position: absolute; top: 12px; right: 12px; padding: 6px 14px; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); border-radius: 100px; font-size: 12px; font-weight: 700; color: var(--accent); }
+        .product-card-body { padding: 20px; }
+        .product-card-category { font-size: 12px; font-weight: 600; color: var(--primary-light); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .product-card-title { font-size: 17px; font-weight: 700; margin-bottom: 8px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .product-card-description { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .product-card-footer { display: flex; align-items: center; justify-content: space-between; }
+        .product-card-price { font-size: 22px; font-weight: 800; color: var(--success); }
+        .product-card-price .original { font-size: 14px; color: var(--text-dim); text-decoration: line-through; font-weight: 500; margin-left: 8px; }
+        .product-card-cta { padding: 10px 20px; background: var(--gradient-1); border: none; border-radius: var(--radius-sm); color: white; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+        .product-card-cta:hover { box-shadow: 0 4px 16px rgba(108,92,231,0.4); transform: translateY(-1px); }
+
+        .empty-state { text-align: center; padding: 80px 20px; grid-column: 1 / -1; }
+        .empty-state-icon { font-size: 64px; margin-bottom: 16px; opacity: 0.5; }
+        .empty-state h3 { font-size: 22px; font-weight: 700; margin-bottom: 12px; color: var(--text-muted); }
+        .empty-state p { color: var(--text-dim); font-size: 15px; }
+
+        .admin-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 24px; }
+        .admin-overlay.active { display: flex; }
+        .admin-panel { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); width: 100%; max-width: 900px; max-height: 90vh; overflow-y: auto; animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(40px) scale(0.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        .admin-header { padding: 24px 32px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--bg-card); z-index: 10; }
+        .admin-header h2 { font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+        .admin-close { width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; transition: all 0.3s ease; }
+        .admin-close:hover { border-color: var(--accent); color: var(--accent); background: rgba(255,107,107,0.1); }
+        .admin-tabs { display: flex; padding: 16px 32px; gap: 4px; border-bottom: 1px solid var(--border); }
+        .admin-tab { padding: 10px 20px; border-radius: var(--radius-xs); border: none; background: transparent; color: var(--text-muted); font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
+        .admin-tab:hover { color: var(--text); }
+        .admin-tab.active { background: rgba(108,92,231,0.15); color: var(--primary-light); }
+        .admin-body { padding: 32px; }
+
+        .form-group { margin-bottom: 24px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-group input, .form-group textarea { width: 100%; padding: 14px 18px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-family: inherit; font-size: 15px; outline: none; transition: all 0.3s ease; }
+        .form-group input:focus, .form-group textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(108,92,231,0.15); }
+        .form-group textarea { resize: vertical; min-height: 80px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .form-actions { display: flex; gap: 12px; justify-content: flex-end; padding-top: 8px; }
+        .btn { padding: 12px 28px; border-radius: var(--radius-sm); border: none; font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-primary { background: var(--gradient-1); color: white; box-shadow: 0 4px 16px rgba(108,92,231,0.3); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(108,92,231,0.5); }
+        .btn-secondary { background: var(--bg); color: var(--text-muted); border: 1px solid var(--border); }
+        .btn-secondary:hover { color: var(--text); border-color: var(--text-dim); }
+        .btn-success { background: linear-gradient(135deg, #00D2A0, #00B894); color: white; }
+        .btn-success:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0,210,160,0.4); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .admin-product-list { display: flex; flex-direction: column; gap: 12px; }
+        .admin-product-item { display: flex; align-items: center; gap: 16px; padding: 16px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); transition: all 0.3s ease; }
+        .admin-product-item:hover { border-color: var(--primary); }
+        .admin-product-thumb { width: 64px; height: 64px; border-radius: var(--radius-xs); object-fit: cover; flex-shrink: 0; }
+        .admin-product-info { flex: 1; min-width: 0; }
+        .admin-product-info h4 { font-size: 15px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .admin-product-info p { font-size: 12px; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .admin-product-actions { display: flex; gap: 8px; flex-shrink: 0; }
+        .admin-product-actions button { width: 36px; height: 36px; border-radius: var(--radius-xs); border: 1px solid var(--border); background: transparent; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: all 0.3s ease; }
+        .admin-product-actions .edit-btn:hover { border-color: var(--primary); color: var(--primary-light); background: rgba(108,92,231,0.1); }
+        .admin-product-actions .delete-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(255,107,107,0.1); }
+
+        .login-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); z-index: 3000; display: none; align-items: center; justify-content: center; padding: 24px; }
+        .login-overlay.active { display: flex; }
+        .login-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 48px; width: 100%; max-width: 420px; animation: slideUp 0.4s ease; text-align: center; }
+        .login-box .lock-icon { width: 64px; height: 64px; background: rgba(108,92,231,0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; font-size: 28px; }
+        .login-box h2 { font-size: 24px; font-weight: 800; margin-bottom: 8px; }
+        .login-box .subtitle { color: var(--text-muted); font-size: 14px; margin-bottom: 32px; }
+        .login-box .form-group { text-align: left; }
+        .login-error { color: var(--accent); font-size: 13px; margin-bottom: 16px; display: none; }
+
+        .toast-container { position: fixed; top: 88px; right: 24px; z-index: 5000; display: flex; flex-direction: column; gap: 8px; }
+        .toast { padding: 14px 24px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 10px; animation: toastIn 0.4s ease; box-shadow: var(--shadow); min-width: 280px; }
+        .toast.success { border-left: 3px solid var(--success); }
+        .toast.error { border-left: 3px solid var(--accent); }
+        @keyframes toastIn { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+
+        .settings-section { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 24px; margin-bottom: 16px; }
+        .settings-section h3 { font-size: 16px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+
+        .footer { border-top: 1px solid var(--border); padding: 40px 24px; text-align: center; position: relative; z-index: 1; }
+        .footer p { color: var(--text-dim); font-size: 14px; }
+
+        @media (max-width: 768px) {
+            .hero { padding: 120px 16px 60px; }
+            .products-grid { grid-template-columns: 1fr; }
+            .form-row { grid-template-columns: 1fr; }
+            .admin-header, .admin-tabs, .admin-body { padding-left: 20px; padding-right: 20px; }
+            .controls { padding: 0 16px 24px; }
+            .nav-btn span.btn-text { display: none; }
+        }
+
+        .image-preview { margin-top: 12px; width: 100%; max-height: 200px; object-fit: contain; border-radius: var(--radius-sm); border: 1px solid var(--border); display: none; }
+        .image-preview.visible { display: block; }
+
+        .confirm-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 4000; display: none; align-items: center; justify-content: center; padding: 24px; }
+        .confirm-overlay.active { display: flex; }
+        .confirm-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 36px; max-width: 400px; width: 100%; text-align: center; animation: slideUp 0.3s ease; }
+        .confirm-box .icon { width: 56px; height: 56px; background: rgba(255,107,107,0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 24px; }
+        .confirm-box h3 { font-size: 18px; margin-bottom: 8px; }
+        .confirm-box p { color: var(--text-muted); font-size: 14px; margin-bottom: 24px; }
+        .confirm-actions { display: flex; gap: 12px; justify-content: center; }
+
+        .admin-add-new { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 16px; border: 2px dashed var(--border); border-radius: var(--radius-sm); background: transparent; color: var(--text-muted); font-family: inherit; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; margin-bottom: 20px; }
+        .admin-add-new:hover { border-color: var(--primary); color: var(--primary-light); background: rgba(108,92,231,0.05); }
+
+        .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 100px; font-size: 11px; font-weight: 600; }
+        .status-badge.online { background: rgba(0,210,160,0.15); color: var(--success); }
+        .status-badge.offline { background: rgba(255,107,107,0.15); color: var(--accent); }
+        .status-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    </style>
+</head>
+<body>
+
+    <!-- Loader -->
+    <div class="loader-overlay" id="loader">
+        <div class="loader-spin"></div>
+        <div class="loader-text">Loading products from database...</div>
+    </div>
+
+    <div class="config-warning visible" id="configWarning">
+        ⚠️ Please configure Firebase in the code for full functionality.
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <div class="logo" onclick="goHome()">
+                <div class="logo-icon">AS</div>
+                <span class="logo-text">AnnyShopBD</span>
+            </div>
+            <div class="nav-actions">
+                <span class="status-badge" id="dbStatus" style="margin-right:8px;"><span class="dot"></span><span class="status-text">Checking...</span></span>
+                <button class="nav-btn nav-btn-primary" onclick="openLogin()" id="loginBtn">🔐 <span class="btn-text">Admin Login</span></button>
+                <button class="nav-btn nav-btn-danger" onclick="openAdmin()" id="adminBtn" style="display:none;">⚙️ <span class="btn-text">Admin Panel</span></button>
+                <button class="nav-btn nav-btn-ghost" onclick="logout()" id="logoutBtn" style="display:none;">🚪 <span class="btn-text">Logout</span></button>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-badge"><span class="dot"></span> Updated Daily</div>
+        <h1>Discover the <span>Best Deals</span><br>Curated Just for You</h1>
+        <p>Browse our hand-picked collection of amazing products with exclusive deals. Every product is personally reviewed and recommended.</p>
+        <div class="hero-stats">
+            <div class="hero-stat"><div class="hero-stat-number" id="statProducts">0</div><div class="hero-stat-label">Products</div></div>
+            <div class="hero-stat"><div class="hero-stat-number" id="statCategories">0</div><div class="hero-stat-label">Categories</div></div>
+            <div class="hero-stat"><div class="hero-stat-number">100%</div><div class="hero-stat-label">Trusted</div></div>
+        </div>
+    </section>
+
+    <div class="controls">
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" placeholder="Search products..." oninput="filterProducts()">
+        </div>
+        <button class="filter-btn active" onclick="setCategory('all', this)">All</button>
+        <div id="categoryFilters"></div>
+    </div>
+
+    <section class="products-section">
+        <div class="products-grid" id="productsGrid"></div>
+    </section>
+
+    <footer class="footer">
+        <p>© 2026 AnnyShopBD. All rights reserved. | This site contains affiliate links — we may earn a commission at no extra cost to you.</p>
+    </footer>
+
+    <div class="login-overlay" id="loginOverlay">
+        <div class="login-box">
+            <div class="lock-icon">🔐</div>
+            <h2>Admin Login</h2>
+            <p class="subtitle">Enter your credentials to access the admin panel</p>
+            <div class="login-error" id="loginError">Invalid username or password</div>
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="loginUsername" placeholder="Enter username">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="loginPassword" placeholder="Enter password">
+            </div>
+            <div class="form-actions" style="justify-content: center; gap: 16px;">
+                <button class="btn btn-secondary" onclick="closeLogin()">Cancel</button>
+                <button class="btn btn-primary" onclick="attemptLogin()">Login →</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-overlay" id="adminOverlay">
+        <div class="admin-panel">
+            <div class="admin-header">
+                <h2>⚙️ Admin Panel</h2>
+                <button class="admin-close" onclick="closeAdmin()">✕</button>
+            </div>
+            <div class="admin-tabs">
+                <button class="admin-tab active" onclick="switchAdminTab('products', this)">📦 Products</button>
+                <button class="admin-tab" onclick="switchAdminTab('add', this)">➕ Add New</button>
+                <button class="admin-tab" onclick="switchAdminTab('settings', this)">🔧 Settings</button>
+            </div>
+            <div class="admin-body">
+                <div id="tabProducts">
+                    <button class="admin-add-new" onclick="switchAdminTab('add', document.querySelectorAll('.admin-tab')[1])">➕ Add New Product</button>
+                    <div class="admin-product-list" id="adminProductList"></div>
+                </div>
+                <div id="tabAdd" style="display:none;">
+                    <h3 style="margin-bottom:24px; font-size:18px;" id="formTitle">➕ Add New Product</h3>
+                    <input type="hidden" id="editProductId" value="">
+                    <div class="form-group">
+                        <label>Product Image URL</label>
+                        <input type="text" id="productImageUrl" placeholder="https://example.com/image.jpg" oninput="previewImage(this.value)">
+                        <img class="image-preview" id="imagePreview" alt="Preview">
+                    </div>
+                    <div class="form-group">
+                        <label>Product Name *</label>
+                        <input type="text" id="productName" placeholder="e.g. Wireless Bluetooth Headphones">
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="productDescription" placeholder="Brief description of the product..."></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Affiliate Link *</label>
+                            <input type="url" id="productLink" placeholder="https://amazon.com/dp/xxx?tag=yourtag">
+                        </div>
+                        <div class="form-group">
+                            <label>Price</label>
+                            <input type="text" id="productPrice" placeholder="e.g. $49.99">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Original Price (optional)</label>
+                            <input type="text" id="productOriginalPrice" placeholder="e.g. $79.99">
+                        </div>
+                        <div class="form-group">
+                            <label>Category</label>
+                            <input type="text" id="productCategory" placeholder="e.g. Electronics">
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-secondary" onclick="resetForm()">Cancel</button>
+                        <button class="btn btn-success" onclick="saveProduct()" id="saveBtn">💾 Save Product</button>
+                    </div>
+                </div>
+                <div id="tabSettings" style="display:none;">
+                    <div class="settings-section">
+                        <h3>🔑 Change Admin Credentials</h3>
+                        <div class="form-row">
+                            <div class="form-group"><label>New Username</label><input type="text" id="newUsername" placeholder="New username"></div>
+                            <div class="form-group"><label>New Password</label><input type="password" id="newPassword" placeholder="New password"></div>
+                        </div>
+                        <button class="btn btn-primary" onclick="updateCredentials()">Update Credentials</button>
+                    </div>
+                    <div class="settings-section">
+                        <h3>📊 Statistics</h3>
+                        <p style="color:var(--text-muted); font-size:14px; line-height:1.8;">
+                            Total Products: <strong id="settingsTotalProducts">0</strong><br>
+                            Total Categories: <strong id="settingsTotalCategories">0</strong>
+                        </p>
+                    </div>
+                    <div class="settings-section">
+                        <h3>🗑️ Danger Zone</h3>
+                        <p style="color:var(--text-muted); font-size:14px; margin-bottom:16px;">This will delete ALL products. This action cannot be undone.</p>
+                        <button class="btn" style="background:rgba(255,107,107,0.15); color:var(--accent); border:1px solid rgba(255,107,107,0.3);" onclick="confirmDeleteAll()">Delete All Products</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="confirm-overlay" id="confirmOverlay">
+        <div class="confirm-box">
+            <div class="icon">⚠️</div>
+            <h3 id="confirmTitle">Are you sure?</h3>
+            <p id="confirmMessage">This action cannot be undone.</p>
+            <div class="confirm-actions">
+                <button class="btn btn-secondary" onclick="closeConfirm()">Cancel</button>
+                <button class="btn" style="background:var(--accent); color:white;" id="confirmBtn">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+    <script>
+        // ================= FIREBASE CONFIG =================
+        const firebaseConfig = {
+            apiKey: "AIzaSyBJNdTciHyY2A9isA70b-L4u1KllG5CSfE",
+			authDomain: "annyshopbd.firebaseapp.com",
+			databaseURL: "https://annyshopbd-default-rtdb.asia-southeast1.firebasedatabase.app",
+			projectId: "annyshopbd",
+			storageBucket: "annyshopbd.firebasestorage.app",
+			messagingSenderId: "866849171692",
+			appId: "1:866849171692:web:9c31f9116bb5e5810b1dc9",
+			measurementId: "G-9CR8NSSDX0"
+        };
+
+        let db, isFirebaseReady = false;
+        let allProducts = []; // Single source of truth
+        let initialLoadDone = false;
+
+        // Firebase Init & Realtime Listener
+        try {
+            if (firebaseConfig.apiKey === "YOUR_API_KEY") {
+                console.warn("Firebase config missing.");
+                hideLoader();
+            } else {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.database();
+                isFirebaseReady = true;
+
+                // Connection status
+                db.ref('.info/connected').on('value', snap => {
+                    const badge = document.getElementById('dbStatus');
+                    if (snap.val() === true) {
+                        badge.className = 'status-badge online';
+                        badge.querySelector('.status-text').textContent = 'Connected';
+                    } else {
+                        badge.className = 'status-badge offline';
+                        badge.querySelector('.status-text').textContent = 'Offline';
+                    }
+                });
+
+                // 🔥 REALTIME PRODUCTS LISTENER
+                // Automatically triggers when data changes in Firebase
+                db.ref('products').on('value', (snapshot) => {
+                    allProducts = [];
+                    snapshot.forEach(child => {
+                        allProducts.push({ id: child.key, ...child.val() });
+                    });
+                    // Sort newest first
+                    allProducts.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                    
+                    renderAll();
+                    
+                    if (!initialLoadDone) {
+                        initialLoadDone = true;
+                        hideLoader();
+                    }
+                });
+
+                document.getElementById('configWarning').classList.remove('visible');
+            }
+        } catch (e) {
+            console.error("Firebase init error:", e);
+            hideLoader();
+        }
+
+        function hideLoader() {
+            document.getElementById('loader').classList.add('hidden');
+        }
+
+        // ================= CENTRALIZED RENDER =================
+        function renderAll() {
+            renderProductGrid();
+            updateStats();
+            renderCategoryFilters();
+            loadAdminProducts();
+        }
+
+        function renderProductGrid() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+            const grid = document.getElementById('productsGrid');
+            let filtered = allProducts;
+
+            if (currentCategory !== 'all') {
+                filtered = filtered.filter(p => (p.category || '').toLowerCase() === currentCategory.toLowerCase());
+            }
+            if (searchTerm) {
+                filtered = filtered.filter(p => 
+                    p.name.toLowerCase().includes(searchTerm) || 
+                    (p.description || '').toLowerCase().includes(searchTerm) || 
+                    (p.category || '').toLowerCase().includes(searchTerm)
+                );
+            }
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🛍️</div><h3>${searchTerm ? 'No products found' : 'No products yet'}</h3><p>${searchTerm ? 'Try a different search term' : 'Amazing deals are coming soon.'}</p></div>`;
+                return;
+            }
+
+            grid.innerHTML = filtered.map((p, i) => `
+                <div class="product-card" style="animation-delay: ${i * 0.05}s" onclick="openProductLink('${escapeHtml(p.link)}')">
+                    <div class="product-card-image-wrapper">
+                        <img class="product-card-image" src="${escapeHtml(p.imageUrl)}" alt="${escapeHtml(p.name)}" onerror="this.src='https://placehold.co/400x220/1A1A2E/5A5A7A?text=No+Image'">
+                        ${p.originalPrice ? '<div class="product-card-badge">DEAL</div>' : ''}
+                    </div>
+                    <div class="product-card-body">
+                        ${p.category ? `<div class="product-card-category">${escapeHtml(p.category)}</div>` : ''}
+                        <div class="product-card-title">${escapeHtml(p.name)}</div>
+                        ${p.description ? `<div class="product-card-description">${escapeHtml(p.description)}</div>` : ''}
+                        <div class="product-card-footer">
+                            <div class="product-card-price">
+                                ${escapeHtml(p.price) || 'See Price'}
+                                ${p.originalPrice ? `<span class="original">${escapeHtml(p.originalPrice)}</span>` : ''}
+                            </div>
+                            <button class="product-card-cta" onclick="event.stopPropagation(); openProductLink('${escapeHtml(p.link)}')">View Deal →</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateStats() {
+            const cats = [...new Set(allProducts.map(p => p.category).filter(Boolean))];
+            document.getElementById('statProducts').textContent = allProducts.length;
+            document.getElementById('statCategories').textContent = cats.length;
+            document.getElementById('settingsTotalProducts').textContent = allProducts.length;
+            document.getElementById('settingsTotalCategories').textContent = cats.length;
+        }
+
+        function renderCategoryFilters() {
+            const cats = [...new Set(allProducts.map(p => p.category).filter(Boolean))];
+            const container = document.getElementById('categoryFilters');
+            container.innerHTML = cats.map(c => `<button class="filter-btn" onclick="setCategory('${escapeHtml(c.toLowerCase())}', this)">${escapeHtml(c)}</button>`).join('');
+        }
+
+        // ================= ADMIN AUTH =================
+        function isAdminLoggedIn() { return sessionStorage.getItem('asb_admin_logged_in') === 'true'; }
+
+        function openLogin() {
+            document.getElementById('loginOverlay').classList.add('active');
+            document.getElementById('loginUsername').value = '';
+            document.getElementById('loginPassword').value = '';
+            document.getElementById('loginError').style.display = 'none';
+            setTimeout(() => document.getElementById('loginUsername').focus(), 100);
+        }
+        function closeLogin() { document.getElementById('loginOverlay').classList.remove('active'); }
+
+        async function attemptLogin() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            if (!username || !password) {
+                document.getElementById('loginError').style.display = 'block';
+                return;
+            }
+
+            try {
+                if (!isFirebaseReady) throw new Error("Firebase not ready");
+                const snap = await db.ref('admin').once('value');
+                const admin = snap.exists() ? snap.val() : { username: 'admin', password: 'admin' };
+                
+                if (username === admin.username && password === admin.password) {
+                    sessionStorage.setItem('asb_admin_logged_in', 'true');
+                    closeLogin();
+                    updateNavButtons();
+                    showToast('Welcome back, Admin!');
+                } else {
+                    document.getElementById('loginError').style.display = 'block';
+                    document.getElementById('loginPassword').value = '';
+                }
+            } catch (e) {
+                showToast('Connection error: ' + e.message, 'error');
+            }
+        }
+
+        document.getElementById('loginPassword').addEventListener('keydown', e => e.key === 'Enter' && attemptLogin());
+        document.getElementById('loginUsername').addEventListener('keydown', e => e.key === 'Enter' && attemptLogin());
+
+        function logout() {
+            sessionStorage.removeItem('asb_admin_logged_in');
+            updateNavButtons();
+            showToast('Logged out successfully');
+        }
+
+        function updateNavButtons() {
+            const loggedIn = isAdminLoggedIn();
+            document.getElementById('loginBtn').style.display = loggedIn ? 'none' : 'flex';
+            document.getElementById('adminBtn').style.display = loggedIn ? 'flex' : 'none';
+            document.getElementById('logoutBtn').style.display = loggedIn ? 'flex' : 'none';
+        }
+
+        // ================= ADMIN PANEL =================
+        function openAdmin() {
+            if (!isAdminLoggedIn()) { openLogin(); return; }
+            document.getElementById('adminOverlay').classList.add('active');
+            switchAdminTab('products', document.querySelectorAll('.admin-tab')[0]);
+        }
+        function closeAdmin() { document.getElementById('adminOverlay').classList.remove('active'); }
+
+        function switchAdminTab(tab, btn) {
+            document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            document.getElementById('tabProducts').style.display = tab === 'products' ? 'block' : 'none';
+            document.getElementById('tabAdd').style.display = tab === 'add' ? 'block' : 'none';
+            document.getElementById('tabSettings').style.display = tab === 'settings' ? 'block' : 'none';
+            if (tab === 'products') loadAdminProducts();
+            if (tab === 'settings') updateStats();
+        }
+
+        function loadAdminProducts() {
+            const list = document.getElementById('adminProductList');
+            if (allProducts.length === 0) {
+                list.innerHTML = `<div style="text-align:center; padding:40px 20px; color:var(--text-dim);"><p style="font-size:40px; margin-bottom:12px;">📦</p><p>No products yet. Add your first product!</p></div>`;
+                return;
+            }
+            list.innerHTML = allProducts.map(p => `
+                <div class="admin-product-item">
+                    <img class="admin-product-thumb" src="${escapeHtml(p.imageUrl)}" alt="${escapeHtml(p.name)}" onerror="this.src='https://placehold.co/64x64/1A1A2E/5A5A7A?text=%F0%9F%93%B7'">
+                    <div class="admin-product-info"><h4>${escapeHtml(p.name)}</h4><p>${escapeHtml(p.category || 'No category')} • ${escapeHtml(p.price || 'No price')}</p></div>
+                    <div class="admin-product-actions">
+                        <button class="edit-btn" onclick="editProduct('${p.id}')">✏️</button>
+                        <button class="delete-btn" onclick="confirmDeleteProduct('${p.id}', '${escapeHtml(p.name)}')">🗑️</button>
+                    </div>
+                </div>`).join('');
+        }
+
+        // ================= CRUD OPERATIONS =================
+        function resetForm() {
+            document.getElementById('editProductId').value = '';
+            ['productImageUrl','productName','productDescription','productLink','productPrice','productOriginalPrice','productCategory'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('imagePreview').classList.remove('visible');
+            document.getElementById('formTitle').textContent = '➕ Add New Product';
+            document.getElementById('saveBtn').disabled = false;
+            document.getElementById('saveBtn').textContent = '💾 Save Product';
+        }
+
+        async function saveProduct() {
+            const name = document.getElementById('productName').value.trim();
+            const link = document.getElementById('productLink').value.trim();
+            if (!name || !link) { showToast('Name and Link are required!', 'error'); return; }
+
+            const btn = document.getElementById('saveBtn');
+            btn.disabled = true; btn.textContent = '⏳ Saving...';
+
+            const editId = document.getElementById('editProductId').value;
+            const data = {
+                imageUrl: document.getElementById('productImageUrl').value.trim(),
+                name, description: document.getElementById('productDescription').value.trim(), link,
+                price: document.getElementById('productPrice').value.trim(),
+                originalPrice: document.getElementById('productOriginalPrice').value.trim(),
+                category: document.getElementById('productCategory').value.trim(),
+                createdAt: editId ? (allProducts.find(p => p.id === editId)?.createdAt || Date.now()) : Date.now(),
+                updatedAt: Date.now()
+            };
+
+            try {
+                await db.ref('products/' + (editId || 'p_' + Date.now().toString(36))).set(data);
+                showToast(editId ? '✅ Product updated!' : '✅ Product added!');
+                resetForm();
+                switchAdminTab('products', document.querySelectorAll('.admin-tab')[0]);
+            } catch (e) { showToast('❌ Error: ' + e.message, 'error'); }
+            btn.disabled = false; btn.textContent = '💾 Save Product';
+        }
+
+        function editProduct(id) {
+            const p = allProducts.find(x => x.id === id);
+            if (!p) return;
+            document.getElementById('editProductId').value = p.id;
+            document.getElementById('productImageUrl').value = p.imageUrl || '';
+            document.getElementById('productName').value = p.name;
+            document.getElementById('productDescription').value = p.description || '';
+            document.getElementById('productLink').value = p.link;
+            document.getElementById('productPrice').value = p.price || '';
+            document.getElementById('productOriginalPrice').value = p.originalPrice || '';
+            document.getElementById('productCategory').value = p.category || '';
+            document.getElementById('formTitle').textContent = '✏️ Edit Product';
+            if (p.imageUrl) previewImage(p.imageUrl);
+            switchAdminTab('add', document.querySelectorAll('.admin-tab')[1]);
+        }
+
+        function confirmDeleteProduct(id, name) {
+            document.getElementById('confirmTitle').textContent = 'Delete Product?';
+            document.getElementById('confirmMessage').textContent = `"${name}" will be permanently deleted.`;
+            document.getElementById('confirmBtn').onclick = () => deleteProduct(id);
+            document.getElementById('confirmOverlay').classList.add('active');
+        }
+
+        async function deleteProduct(id) {
+            try {
+                await db.ref('products/' + id).remove();
+                showToast('🗑️ Product deleted!');
+                closeConfirm();
+            } catch (e) { showToast('❌ Error: ' + e.message, 'error'); }
+        }
+
+        function confirmDeleteAll() {
+            document.getElementById('confirmTitle').textContent = 'Delete All Products?';
+            document.getElementById('confirmMessage').textContent = 'This cannot be undone!';
+            document.getElementById('confirmBtn').onclick = async () => {
+                try {
+                    await db.ref('products').remove();
+                    showToast('🗑️ All products deleted!');
+                    closeConfirm();
+                } catch (e) { showToast('❌ Error: ' + e.message, 'error'); }
+            };
+            document.getElementById('confirmOverlay').classList.add('active');
+        }
+        function closeConfirm() { document.getElementById('confirmOverlay').classList.remove('active'); }
+
+        // ================= SETTINGS & CREDENTIALS =================
+        async function updateCredentials() {
+            const u = document.getElementById('newUsername').value.trim();
+            const p = document.getElementById('newPassword').value.trim();
+            if (!u && !p) { showToast('Enter at least one new value!', 'error'); return; }
+
+            try {
+                const updates = {};
+                if (u) updates.username = u;
+                if (p) updates.password = p;
+
+                await db.ref('admin').update(updates);
+                showToast('✅ Credentials updated! Use new details next login.');
+                document.getElementById('newUsername').value = '';
+                document.getElementById('newPassword').value = '';
+            } catch (e) { showToast('❌ Failed: ' + e.message, 'error'); }
+        }
+
+        // ================= UTILS & INIT =================
+        let currentCategory = 'all';
+        function filterProducts() { renderProductGrid(); }
+        function setCategory(cat, btn) {
+            currentCategory = cat;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            renderProductGrid();
+        }
+        function openProductLink(link) { if (link) window.open(link, '_blank', 'noopener,noreferrer'); }
+        function goHome() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+        function previewImage(url) {
+            const p = document.getElementById('imagePreview');
+            if (url && url.trim()) { p.src = url.trim(); p.classList.add('visible'); p.onerror = () => p.classList.remove('visible'); }
+            else p.classList.remove('visible');
+        }
+        function escapeHtml(str) { if (!str) return ''; const d=document.createElement('div'); d.textContent=str; return d.innerHTML; }
+        function showToast(msg, type='success') {
+            const c=document.getElementById('toastContainer'); const t=document.createElement('div');
+            t.className=`toast ${type}`; t.innerHTML=`${type==='success'?'✅':type==='error'?'❌':'⏳'} ${msg}`;
+            c.appendChild(t); setTimeout(()=>{t.style.opacity='0';t.style.transform='translateX(40px)';t.style.transition='all 0.3s ease';setTimeout(()=>t.remove(),300);},3000);
+        }
+
+        // Initialize
+        updateNavButtons();
+    </script>
+</body>
+</html>
